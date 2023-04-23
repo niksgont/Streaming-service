@@ -4,32 +4,49 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Film Catalog</title>
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"  rel="stylesheet"
-           integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
     <style>
         .film {
             border: 1px solid black;
             padding: 10px;
             margin: 10px;
         }
+
     </style>
 </head>
 <body>
-    <h1>Film Catalog</h1>
-    <div id="films">
-        <!-- Films will be listed here -->
-    </div>
+<h1>Film Catalog</h1>
+<div id="films">
+    <!-- Films will be listed here -->
+</div>
 
-    <script>
+<script>
         const API_URL = "http://localhost:8000";
 
-        async function fetchFilms() {
-            const response = await fetch(`${API_URL}/films`);
-            const films = await response.json();
+        function createList(items) {
+            const ul = document.createElement("ul");
+            for (const item of items) {
+                const li = document.createElement("li");
+                li.textContent = item;
+                ul.appendChild(li);
+            }
+            return ul;
+        };
 
-            const filmList = document.getElementById("films");
+    async function fetchFilms() {
+        const response = await fetch(`${API_URL}/films`);
+        if (!response.ok) {
+            console.error("Error fetching films:", response.status, response.statusText);
+            return;
+        }
+        const films = await response.json();
 
-            for (const film of films) {
+        console.log("Fetched films:", films);
+
+        const filmList = document.getElementById("films");
+
+        for (const film of films) {
                 const filmDiv = document.createElement("div");
                 filmDiv.className = "film";
                 filmDiv.innerHTML = `
@@ -37,12 +54,36 @@
                     <p>Director: ${film.director}</p>
                     <p>Year: ${film.year}</p>
                 `;
+
+                const categories = film.categories.map(category => category.category_name);
+                const categoryList = createList(categories);
+                filmDiv.appendChild(document.createTextNode("Categories: "));
+                filmDiv.appendChild(categoryList);
+
+<!--                const actors = film.actors.map(actor => ${actor.first_name} ${actor.last_name});-->
+<!--                const actorList = createList(actors);-->
+<!--                filmDiv.appendChild(document.createTextNode("Actors: "));-->
+<!--                filmDiv.appendChild(actorList);-->
+
+<!--                const images = film.images.map(image => {-->
+<!--                    const img = document.createElement("img");-->
+<!--                    img.src = image.image_url;-->
+<!--                    img.width = 100;-->
+<!--                    return img;-->
+<!--                }-->
+<!--                );-->
+<!--                for (const image of images) {-->
+<!--                    filmDiv.appendChild(image);-->
+<!--                }-->
+
                 filmList.appendChild(filmDiv);
             }
         }
 
         // Fetch the films and display them when the page loads
         fetchFilms();
-    </script>
+
+
+</script>
 </body>
 </html>
