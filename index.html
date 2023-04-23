@@ -60,10 +60,11 @@
                 filmDiv.appendChild(document.createTextNode("Categories: "));
                 filmDiv.appendChild(categoryList);
 
-<!--                const actors = film.actors.map(actor => ${actor.first_name} ${actor.last_name});-->
-<!--                const actorList = createList(actors);-->
-<!--                filmDiv.appendChild(document.createTextNode("Actors: "));-->
-<!--                filmDiv.appendChild(actorList);-->
+<!--                const actors = film.cast.map(actor => ${actor.first_name} ${actor.last_name});-->
+                const actors = film.cast.map(actor => `${actor.first_name} ${actor.last_name}`);
+                const actorList = createList(actors);
+                filmDiv.appendChild(document.createTextNode("Actors: "));
+                filmDiv.appendChild(actorList);
 
 <!--                const images = film.images.map(image => {-->
 <!--                    const img = document.createElement("img");-->

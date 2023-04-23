@@ -5,7 +5,7 @@ from tortoise.contrib.fastapi import register_tortoise
 import tortoise.contrib.pydantic
 # from tortoise. import
 from typing import List
-from schemas import Films, FilmCreate, FilmUpdate, FilmInDB, Film, GetCategoryFilms, GetCategory
+from schemas import Films, FilmCreate, FilmUpdate, FilmInDB, Film, GetCategoryFilms, GetCategory, FilmActor
 import uvicorn
 import logging
 
@@ -32,18 +32,20 @@ app.add_middleware(
 
 async def get_film_with_categories(film: Films) -> GetCategoryFilms:
     categories = await film.categories.all()
+    cast = await film.cast.all()
     return GetCategoryFilms(
         id=film.id,
         title=film.title,
         director=film.director,
         year=film.year,
         categories=[GetCategory.from_orm(category) for category in categories],
+        cast=[FilmActor.from_orm(actor) for actor in cast],
     )
 
 
 @app.get("/films", response_model=List[GetCategoryFilms])
 async def get_films():
-    films = await Films.all().prefetch_related("categories")
+    films = await Films.all().prefetch_related("categories", "cast")
     return [await get_film_with_categories(film) for film in films]
 
 
