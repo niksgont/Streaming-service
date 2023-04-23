@@ -66,16 +66,16 @@
                 filmDiv.appendChild(document.createTextNode("Actors: "));
                 filmDiv.appendChild(actorList);
 
-<!--                const images = film.images.map(image => {-->
-<!--                    const img = document.createElement("img");-->
-<!--                    img.src = image.image_url;-->
-<!--                    img.width = 100;-->
-<!--                    return img;-->
-<!--                }-->
-<!--                );-->
-<!--                for (const image of images) {-->
-<!--                    filmDiv.appendChild(image);-->
-<!--                }-->
+                const images = film.image.map(image => {
+                    const img = document.createElement("img");
+                    img.src = image.image_url;
+                    img.width = 100;
+                    return img;
+                }
+                );
+                for (const image of images) {
+                    filmDiv.appendChild(image);
+                }
 
                 filmList.appendChild(filmDiv);
             }

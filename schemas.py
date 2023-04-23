@@ -32,6 +32,10 @@ class FilmActor(PydanticModel):
     last_name: str
 
 
+class FilmImage(PydanticModel):
+    image_url: str
+
+
 class GetCategoryFilms(PydanticModel):
     id: int
     title: str
@@ -39,6 +43,7 @@ class GetCategoryFilms(PydanticModel):
     year: int
     categories: List[GetCategory] = []
     cast: List[FilmActor] = []
+    image: List[FilmImage] =[]
 
 
 class Films(Model):
@@ -48,6 +53,7 @@ class Films(Model):
     year = fields.IntField()
     categories: fields.ReverseRelation["Category"]
     cast: fields.ReverseRelation["FilmCast"]
+    image: fields.ReverseRelation["Images"]
 
     # class PydanticMeta:
     #     table = "films"
@@ -70,3 +76,12 @@ class FilmCast(Model):
 
     class Meta:
         unique_together = ("actor_id", "film")
+
+
+class Images(Model):
+    id = fields.IntField(pk=True)
+    image_url = fields.CharField(max_length=500)
+    film: fields.ForeignKeyRelation[Films] = fields.ForeignKeyField("models.Films", related_name='image')
+
+    # class Meta:
+    #     unique = "film"
