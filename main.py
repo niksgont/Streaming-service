@@ -5,7 +5,8 @@ from tortoise.contrib.fastapi import register_tortoise
 import tortoise.contrib.pydantic
 # from tortoise. import
 from typing import List
-from schemas import Films, FilmCreate, FilmUpdate, FilmInDB, Film, GetCategoryFilms, GetCategory, FilmActor, FilmImage
+from schemas import FilmCreate, Film, GetCategoryFilms, GetCategory, FilmActor, FilmImage
+from models import Films
 import uvicorn
 import logging
 
@@ -21,15 +22,6 @@ app.add_middleware(
 )
 
 
-# @app.get("/films", response_model=List[GetCategoryFilms])
-# async def get_films():
-#     return await Films.all().prefetch_related("categories")
-
-# @app.get("/films", response_model=List[GetCategoryFilms])
-# async def get_films():
-#     films = await Films.all().prefetch_related("categories")
-#     return [await GetCategoryFilms.from_tortoise_orm(film) for film in films]
-
 async def get_film_with_categories(film: Films) -> GetCategoryFilms:
     categories = await film.categories.all()
     cast = await film.cast.all()
@@ -39,6 +31,9 @@ async def get_film_with_categories(film: Films) -> GetCategoryFilms:
         title=film.title,
         director=film.director,
         year=film.year,
+        description=film.description,
+        length=film.length,
+        rating=film.rating,
         categories=[GetCategory.from_orm(category) for category in categories],
         cast=[FilmActor.from_orm(actor) for actor in cast],
         image=[FilmImage.from_orm(image) for image in images],
@@ -86,10 +81,12 @@ async def create_film_endpoint(film: FilmCreate):
     return await create_film(film)
 
 
+DATABASE_URL = "postgres://postgres:postgres@localhost:5432/films"
+
 register_tortoise(
     app,
     db_url=DATABASE_URL,
-    modules={"models": ["schemas"]},
+    modules={"models": ["models"]},
     generate_schemas=True,
     add_exception_handlers=True,
 )
