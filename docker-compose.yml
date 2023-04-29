@@ -1,0 +1,22 @@
+version: '3'
+services:
+  postgresql:
+    image: postgres
+    container_name: my-postgres-db
+    environment:
+      - POSTGRES_DB='project'
+      - POSTGRES_USER=DB_user
+      - POSTGRES_PASSWORD=DB_password
+    ports:
+      - "5430:5432"
+  server:
+    build: .
+    image: niksgont/server_test:latest
+    container_name: server_test
+    depends_on:
+      - postgresql
+    environment:
+      - POSTGRES_USER=DB_user
+      - POSTGRES_PASSWORD=DB_password
+    ports:
+      - "8080:8080"
