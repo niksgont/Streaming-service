@@ -2,11 +2,16 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.params import Depends, Path
 from tortoise.contrib.fastapi import register_tortoise
+import tortoise.contrib.pydantic
+# from tortoise. import
 from typing import List
-from schemas import FilmModel, FilmCreate, FilmUpdate, FilmInDB, Film
+from schemas import FilmCreate, Film, GetCategoryFilms, GetCategory, FilmActor, FilmImage
+from models import Films
 import uvicorn
+import logging
 
 app = FastAPI()
+DATABASE_URL = "postgres://postgres:10272@localhost:5432/films"
 
 app.add_middleware(
     CORSMiddleware,
@@ -17,24 +22,44 @@ app.add_middleware(
 )
 
 
+async def get_film_with_categories(film: Films) -> GetCategoryFilms:
+    categories = await film.categories.all()
+    cast = await film.cast.all()
+    images = await film.image.all()
+    return GetCategoryFilms(
+        id=film.id,
+        title=film.title,
+        director=film.director,
+        year=film.year,
+        description=film.description,
+        length=film.length,
+        rating=film.rating,
+        categories=[GetCategory.from_orm(category) for category in categories],
+        cast=[FilmActor.from_orm(actor) for actor in cast],
+        image=[FilmImage.from_orm(image) for image in images],
+    )
+
+
+@app.get("/films", response_model=List[GetCategoryFilms])
 async def get_films():
-    return await FilmModel.all()
+    films = await Films.all().prefetch_related("categories", "cast", "image")
+    return [await get_film_with_categories(film) for film in films]
 
 
 async def get_film(film_id: int):
-    film = await FilmModel.get_or_none(id=film_id)
+    film = await Films.get_or_none(id=film_id).prefetch_related("categories")
     if film is None:
         raise HTTPException(status_code=404, detail="Film not found")
     return film
 
 
 async def create_film(film: FilmCreate):
-    new_film = await FilmModel.create(**film.dict())
+    new_film = await Films.create(**film.dict())
     return new_film
 
 
 async def delete_film(film_id: int):
-    film = await FilmModel.get_or_none(id=film_id)
+    film = await Films.get_or_none(id=film_id)
     if film is None:
         raise HTTPException(status_code=404, detail="Film not found")
     await film.delete()
@@ -56,13 +81,16 @@ async def create_film_endpoint(film: FilmCreate):
     return await create_film(film)
 
 
+DATABASE_URL = "postgres://postgres:postgres@localhost:5432/films"
+
 register_tortoise(
     app,
     db_url=DATABASE_URL,
-    modules={"models": ["main"]},
+    modules={"models": ["models"]},
     generate_schemas=True,
     add_exception_handlers=True,
 )
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')

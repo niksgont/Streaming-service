@@ -1,12 +1,15 @@
 from pydantic import BaseModel
-from tortoise.models import Model
-from tortoise import fields
+from tortoise.contrib.pydantic import  PydanticModel
+from typing import List
 
 
 class FilmCreate(BaseModel):
     title: str
     director: str
     year: int
+    description: str
+    length: int
+    rating: str
 
 
 class FilmUpdate(FilmCreate):
@@ -21,12 +24,28 @@ class Film(FilmInDB):
     pass
 
 
-class FilmModel(Model):
-    id = fields.IntField(pk=True)
-    title = fields.CharField(max_length=255)
-    director = fields.CharField(max_length=255)
-    year = fields.IntField()
+class GetCategory(PydanticModel):
+    category_name: str
 
-    class Meta:
-        table = "films"
+
+class FilmActor(PydanticModel):
+    first_name: str
+    last_name: str
+
+
+class FilmImage(PydanticModel):
+    image_url: str
+
+
+class GetCategoryFilms(PydanticModel):
+    id: int
+    title: str
+    director: str
+    year: int
+    description: str
+    length: int
+    rating: str
+    categories: List[GetCategory] = []
+    cast: List[FilmActor] = []
+    image: List[FilmImage] = []
 
