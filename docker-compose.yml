@@ -11,7 +11,7 @@ services:
       - "5430:5432"
   server:
     build: .
-    image: niksgont/server_test:latest
+    image: python:latest
     container_name: server_test
     depends_on:
       - postgresql
