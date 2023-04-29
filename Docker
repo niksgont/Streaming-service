@@ -1,24 +1,4 @@
-on:
-  push:
-    branches: [main]
-jobs:
-  build:
-    name: Check and Build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Repo
-        uses: actions/checkout@v2
-
-      - name: Check Compose Config
-        uses: docker/compose-action@v1
-        with:
-          compose-file: docker-compose.yml
-          compose-command: config
-
-      - name: Build Images
-        uses: docker/build-push-action@v2
-        with:
-          context: .
-          push: false
-          tags: |
-            my-python-server:latest
+FROM postgres
+ENV POSTGRES_PASSWORD 031220031203
+ENV POSTGRES_DB project
+COPY restore.sql /docker-entrypoint-initdb.d/
