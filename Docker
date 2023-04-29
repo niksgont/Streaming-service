@@ -1,4 +1,4 @@
 FROM postgres
-ENV POSTGRES_PASSWORD 031220031203
+ENV POSTGRES_PASSWORD DB_password
 ENV POSTGRES_DB project
 COPY restore.sql /docker-entrypoint-initdb.d/
