@@ -20,7 +20,7 @@ jobs:
       - name: Start a test PostgreSQL database server
         uses: docker-compose@v2
         with:
-          file: docker-compose.yml
+          file: Dockerfile
           service: db_test
           exit-code: 0
           options: >-
@@ -41,6 +41,6 @@ jobs:
       - name: Stop PostgreSQL database servers
         uses: docker-compose@v2
         with:
-          file: docker-compose.yml
+          file: Dockerfile
           command: down
           remove-volumes: true
