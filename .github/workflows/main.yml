@@ -42,7 +42,7 @@ jobs:
             --env DB_PORT=5432
       - name: Test database
         env:
-          DATABASE_URL: postgresql://DB_user:DB_password@localhost:5432/project
+          DATABASE_URL: postgresql://DB_user:DB_password@localhost:5432/proj
         run: |
           alembic upgrade head
           pytest --cov=./ --cov-fail-under=50
