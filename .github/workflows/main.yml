@@ -15,6 +15,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install pytest
           pip install alembic
+          alembic init alembic
       - name: Checkout Repo
         uses: actions/checkout@v2
       - name: Build the stack
