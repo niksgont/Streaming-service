@@ -38,8 +38,7 @@ jobs:
         env:
           DATABASE_URL: postgresql://DB_user:DB_password@localhost:5432/database_test
         run: |
-           alembic upgrade head
-            pytest --cov=./ --cov-fail-under=50
+          pytest --cov=./ --cov-fail-under=50
         timeout-minutes: 10
       - name: Stop PostgreSQL database servers
         uses: docker/build-push-action@v2
