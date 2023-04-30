@@ -18,7 +18,7 @@ jobs:
           tags: |
             python_test:latest
       - name: Start a test PostgreSQL database server
-        uses: docker-compose@v2
+        uses: docker@v2
         with:
           file: Dockerfile
           service: db_test
@@ -39,7 +39,7 @@ jobs:
             alembic downgrade base
         timeout-minutes: 10
       - name: Stop PostgreSQL database servers
-        uses: docker-compose@v2
+        uses: docker@v2
         with:
           file: Dockerfile
           command: down
