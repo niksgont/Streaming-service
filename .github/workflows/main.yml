@@ -40,7 +40,6 @@ jobs:
         run: |
            alembic upgrade head
             pytest --cov=./ --cov-fail-under=50
-            alembic downgrade base
         timeout-minutes: 10
       - name: Stop PostgreSQL database servers
         uses: docker/build-push-action@v2
