@@ -6,6 +6,16 @@ jobs:
     name: Check and Build
     runs-on: ubuntu-latest
     steps:
+      - name: Set up Python 3
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest
+          pip install alembic
+          alembic init alembic
       - name: Checkout Repo
         uses: actions/checkout@v2
       - name: Build the stack
@@ -17,3 +27,30 @@ jobs:
           push: false
           tags: |
             python_test:latest
+      - name: Start a test PostgreSQL database server
+        uses: docker/build-push-action@v2
+        with:
+          file: Dockerfile
+          service: db_test
+          exit-code: 0
+          options: >-
+            --detach
+            --env POSTGRES_USER=DB_user
+            --env POSTGRES_PASSWORD=DB_password
+            --env POSTGRES_DB=project
+            --env DB_HOST=localhost
+            --env DB_PORT=5432
+      - name: Test database
+        env:
+          DATABASE_URL: postgresql://DB_user:DB_password@localhost:5432/database_test
+        run: |
+          alembic upgrade head
+          pytest --cov=./ --cov-fail-under=50
+          alembic downgrade base
+        timeout-minutes: 10
+      - name: Stop PostgreSQL database servers
+        uses: docker/build-push-action@v2
+        with:
+          file: Dockerfile
+          command: down
+          remove-volumes: true
