@@ -1,6 +1,6 @@
 on:
   push:
-    branches: [master]
+    branches: [test_action]
 jobs:
   build:
     name: Check and Build
@@ -17,3 +17,30 @@ jobs:
           push: false
           tags: |
             python_test:latest
+      - name: Start a test PostgreSQL database server
+        uses: docker-compose@v2
+        with:
+          file: docker-compose.yml
+          service: db_test
+          exit-code: 0
+          options: >-
+            --detach
+            --env POSTGRES_USER=DB_user
+            --env POSTGRES_PASSWORD=DB_password
+            --env POSTGRES_DB=project
+            --env DB_HOST=localhost
+            --env DB_PORT=5432
+      - name: Test database
+        env:
+          DATABASE_URL: postgresql://DB_user:DB_password@localhost:5432/database_test
+        run: |
+           alembic upgrade head
+            pytest --cov=./ --cov-fail-under=50
+            alembic downgrade base
+        timeout-minutes: 10
+      - name: Stop PostgreSQL database servers
+        uses: docker-compose@v2
+        with:
+          file: docker-compose.yml
+          command: down
+          remove-volumes: true
